@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Install unzip
         run: |
@@ -20,24 +21,30 @@ jobs:
 
       - name: Unzip project
         run: |
+          echo "=== BEFORE UNZIP (ROOT) ==="
+          ls -la
           unzip -o ChessAndroid.zip -d extracted
+          echo "=== AFTER UNZIP (extracted) ==="
+          ls -la extracted || true
+          echo "=== extracted/ChessAndroid ==="
+          ls -la extracted/ChessAndroid || true
           shopt -s dotglob
           mv extracted/ChessAndroid/* .
           rm -rf extracted ChessAndroid.zip
+          echo "=== AFTER MOVE (ROOT) ==="
+          ls -la
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Build Debug APK
+      - name: Debug project structure
         run: |
-          chmod +x gradlew
-          ./gradlew :app:assembleDebug
+          echo "=== FIND gradlew ==="
+          find . -name gradlew -maxdepth 4 || true
+          echo "=== ROOT LIST ==="
+          ls -la
+          echo "=== APP LIST ==="
+          ls -la app || true
+          echo "=== SETTINGS/BUILD FILES ==="
+          ls -la settings.gradle* build.gradle* gradle* || true
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+      # Поки що НЕ збираємо APK, лише дивимось структуру.
+      # Після того як ти скинеш мені лог з цього кроку,
+      # я дам фінальну версію файлу зі збіркою APK.
