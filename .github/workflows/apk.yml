@@ -22,9 +22,11 @@ jobs:
         run: |
           unzip -o ChessAndroid.zip
           ls -la
+          ls -la extracted
 
       - name: Ensure gradle-wrapper.jar exists
         run: |
+          cd extracted
           mkdir -p gradle/wrapper
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
             echo "Downloading gradle-wrapper.jar..."
@@ -41,6 +43,7 @@ jobs:
 
       - name: Build APK
         run: |
+          cd extracted
           chmod +x gradlew
           ./gradlew :app:assembleDebug
 
@@ -48,4 +51,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: chess-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: extracted/app/build/outputs/apk/debug/*.apk
