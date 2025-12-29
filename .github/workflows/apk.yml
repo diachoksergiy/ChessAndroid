@@ -13,25 +13,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install unzip + curl
+      - name: Install tools
         run: |
           sudo apt-get update
           sudo apt-get install -y unzip curl
 
-      - name: Unzip project
+      - name: Unzip project into project/
         run: |
-          unzip -o ChessAndroid.zip
-          ls -la
-          ls -la extracted
+          rm -rf project
+          mkdir project
+          unzip -o ChessAndroid.zip -d project
+          ls -la project
 
       - name: Ensure gradle-wrapper.jar exists
         run: |
-          cd extracted
+          cd project
           mkdir -p gradle/wrapper
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            echo "Downloading gradle-wrapper.jar..."
-            curl -L --fail -o gradle/wrapper/gradle-wrapper.jar \
-              https://raw.githubusercontent.com/gradle/gradle/v8.7/gradle/wrapper/gradle-wrapper.jar
+            echo "Downloading gradle-wrapper.jar"
+            curl -L --fail \
+              https://raw.githubusercontent.com/gradle/gradle/v8.7/gradle/wrapper/gradle-wrapper.jar \
+              -o gradle/wrapper/gradle-wrapper.jar
           fi
           ls -la gradle/wrapper
 
@@ -43,7 +45,7 @@ jobs:
 
       - name: Build APK
         run: |
-          cd extracted
+          cd project
           chmod +x gradlew
           ./gradlew :app:assembleDebug
 
@@ -51,4 +53,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: chess-debug-apk
-          path: extracted/app/build/outputs/apk/debug/*.apk
+          path: project/app/build/outputs/apk/debug/*.apk
